@@ -17,6 +17,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from django.contrib.auth import logout
+
 @csrf_exempt
 def api_event_list(request):
     if request.method == 'GET':
@@ -302,3 +304,8 @@ def clean(self):
 def schedule_view(request):
     events = Event.objects.prefetch_related('sessions').order_by('date')
     return render(request, 'scheduler/schedule.html', {'events': events})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')

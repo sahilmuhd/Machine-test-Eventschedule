@@ -36,7 +36,9 @@ urlpatterns = [
     path('speakers/<int:pk>/delete/', views.speaker_delete, name='speaker_delete'),
 
     path('schedule/', views.schedule_view, name='schedule_view'),
-    path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
+    path('logout/', views.logout_view, name='logout'),
+
+
 
     # --------------------
     # ✅ API ENDPOINTS
