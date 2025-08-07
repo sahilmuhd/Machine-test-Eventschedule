@@ -17,6 +17,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from django.contrib.auth.decorators import login_required
+
+
 from django.contrib.auth import logout
 
 @csrf_exempt
@@ -156,25 +159,32 @@ def register_view(request):
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
 
+@login_required
 def event_list(request):
-    events = Event.objects.all()
+    events = Event.objects.filter(created_by=request.user)
     return render(request, 'scheduler/event_list.html', {'events': events})
+
 
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk)
     sessions = Session.objects.filter(event=event)
     return render(request, 'scheduler/event_detail.html', {'event': event, 'sessions': sessions})
 
+@login_required
 def event_create(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
         if form.is_valid():
-            form.save()
+            event = form.save(commit=False)
+            event.created_by = request.user  # ✅ link to logged-in user
+            event.save()
             return redirect('event_list')
     else:
         form = EventForm()
     return render(request, 'scheduler/event_form.html', {'form': form})
 
+
+@login_required
 def event_update(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
@@ -186,6 +196,7 @@ def event_update(request, pk):
         form = EventForm(instance=event)
     return render(request, 'scheduler/event_form.html', {'form': form})
 
+@login_required
 def event_delete(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
@@ -216,6 +227,7 @@ def session_create(request):
     return render(request, 'scheduler/session_form.html', {'form': form})
 
 
+@login_required
 def session_update(request, pk):
     session = get_object_or_404(Session, pk=pk)
     if request.method == 'POST':
@@ -232,6 +244,7 @@ def session_update(request, pk):
         form = SessionForm(instance=session)
     return render(request, 'scheduler/session_form.html', {'form': form})
 
+@login_required
 def session_delete(request, pk):
     session = get_object_or_404(Session, pk=pk)
     if request.method == 'POST':
@@ -256,6 +269,7 @@ def speaker_create(request):
         form = SpeakerForm()
     return render(request, 'scheduler/speaker_form.html', {'form': form})
 
+@login_required
 def speaker_update(request, pk):
     speaker = get_object_or_404(Speaker, pk=pk)
     if request.method == 'POST':
@@ -267,6 +281,7 @@ def speaker_update(request, pk):
         form = SpeakerForm(instance=speaker)
     return render(request, 'scheduler/speaker_form.html', {'form': form})
 
+@login_required
 def speaker_delete(request, pk):
     speaker = get_object_or_404(Speaker, pk=pk)
     if request.method == 'POST':

@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 # -----------------------------
 # SPEAKER MODEL
@@ -21,6 +22,7 @@ class Event(models.Model):
     description = models.TextField(blank=True)
     date = models.DateField()
     location = models.CharField(max_length=200)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
